@@ -3,26 +3,86 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 21;
 use Test::Exception;
+use Date::Format;
 
 BEGIN {
-    use_ok( 'Google::SAMLResponse' );
+    use_ok( 'Google::SAML::Request' );
 }
 
-my $request = 'fZJNb9swDIbvBfofBN1tKxkGdELsIEtRNEA/jMbZYTdFZmK1+poox+u/r+I0WHdoj6JIvs9Lcjb/azQ5QEDlbEknOaMErHStsvuSbpqb7IrOq8uLGQqjPV/0sbNP8KcHjCRVWuTjR0n7YLkTqJBbYQB5lHy9uL/j05xxH1x00mlKVtclNS9WONg+dy14A88vUlnYee3brbd62+07JTvnraPk1xlresRaIfawshiFjSnE2FXGvmdT1rAfnDH+jf2mpH5X+qnsycFXWNtTEvLbpqmz+nHdjA0OqoXwkLJLunduryGXzlCyQIQQE87SWewNhDWEg5KweboraRejR14UwzDk/4oKUQwmprI039Nb4tFHLRDVIfXfCY1Aq3G4fPQXPkz1a3px5qHV54qz4kPr6n2JR2+r69ppJV/JQms3LAOImHhi6IGSGxeMiJ+rT/LJGFFtthtTeW/Rg1Q7BS0lRXVS/f9a0g29AQ==';
-my $saml = Google::SAMLResponse->new( { key => 't/rsa.private.key', login => 'someone', request => $request } );
-isa_ok( $saml, 'Google::SAMLResponse' );
+my $request = 'eJxdkE1PwzAMhs/9F1XubcM00IjWTQOEmDTQtA8O3NrEa7M1donTjZ9P2UAgrraf1489nn64Jj6CZ0uYi6tUihhQk7FY5WK7eUxGYjoZc+GaVs26UOMK3jvgEEc9iKzOnVx0HhUVbFlh4YBV0Go9e16oQSpV6ymQpkZE84dc7Nqign17KGtnzI5MUzrc1aayaB0cLOiD3ZcAVsTR649Wn9LDzB3MkUOBoS9JeZPI60QONnKkhrdqKN9EtPxedWfxcsE/r/SvV3kZYvW02SyTFRjrQYdzyNEa8C89kYuKqGog1eRENGMGH3qle0LuHPg1+KPVsF0tclGH0LLKstPplP5CWU0cwGQt09erDDhKEUJWaBbZ5BPy1YRc';
 
-dies_ok { $saml = Google::SAMLResponse->new() } 'new should die when called without any parameters';
-dies_ok { $saml = Google::SAMLResponse->new( { login => 'someone', request => $request } ) } 'new should die when called without the key parameter';
-dies_ok { $saml = Google::SAMLResponse->new( { key => 't/rsa.private.key', request => $request } ) } 'new should die when called without the login parameter';
-dies_ok { $saml = Google::SAMLResponse->new( { login => 'someone', key => 't/rsa.private.key' } ) } 'new should die when called without the request parameter';
+my $saml = Google::SAML::Request->new(
+            {
+                ProviderName                => 'provider',
+                AssertionConsumerServiceURL => 'http://AssertionConsumerServiceURL'
+            } );
 
-$saml = Google::SAMLResponse->new( { key => 't/rsa.private.key', login => 'someone', request => $request } );
-is( $saml->{ttl}, 2*60, 'Default for ttl is 2 minutes' );
-is( $saml->{canonicalizer}, 'XML::CanonicalizeXML', 'Default for canonicalizer is XML::CanonicalizeXML' );
-is( $saml->{request}, $request, 'Request is stored in object' );
-is( $saml->{login}, 'someone', 'Login is stored in object' );
-is( $saml->{key}, 't/rsa.private.key', 'Key is stored in object' );
+isa_ok( $saml, 'Google::SAML::Request' );
+
+dies_ok { $saml = Google::SAML::Response->new() } 'new should die when called without any parameters';
+dies_ok { $saml = Google::SAML::Response->new( { ProviderName => 'foo' } ) } 'new should die when called without the AssertionConsumerServiceURL parameter';
+dies_ok { $saml = Google::SAML::Response->new( { AssertionConsumerServiceURL => 'bar' } ) } 'new should die when called without the ProviderName parameter';
+
+my $time = time;
+$saml = Google::SAML::Request->new(
+            {
+                ProviderName                => 'provider',
+                AssertionConsumerServiceURL => 'http://AssertionConsumerServiceURL'
+            } );
+
+is( $saml->{ProviderName}, 'provider', 'object knows about ProviderName' );
+is( $saml->{AssertionConsumerServiceURL}, 'http://AssertionConsumerServiceURL', 'object knows about AssertionConsumerServiceURL' );
+is( length $saml->{ID}, 40, 'a 40 characters ID was generated' );
+ok( $saml->{IssueInstant} eq makeIssueInstant( $time ) || $saml->{IssueInstant} eq makeIssueInstant( $time + 1), 'IssueInstant looks ok' );
+
+
+$saml = Google::SAML::Request->new(
+            {
+                ProviderName                => 'provider',
+                AssertionConsumerServiceURL => 'http://AssertionConsumerServiceURL',
+                IssueInstant                => 'fooBar',
+            } );
+
+is( $saml->{ProviderName}, 'provider', 'object knows about ProviderName' );
+is( $saml->{AssertionConsumerServiceURL}, 'http://AssertionConsumerServiceURL', 'object knows about AssertionConsumerServiceURL' );
+is( length $saml->{ID}, 40, 'a 40 characters ID was generated' );
+is( $saml->{IssueInstant}, 'fooBar', 'IssueInstant looks ok' );
+
+
+$time = time;
+$saml = Google::SAML::Request->new(
+            {
+                ProviderName                => 'provider',
+                AssertionConsumerServiceURL => 'http://AssertionConsumerServiceURL',
+                ID                          => 'gabbagabbahey'
+            } );
+
+is( $saml->{ProviderName}, 'provider', 'object knows about ProviderName' );
+is( $saml->{AssertionConsumerServiceURL}, 'http://AssertionConsumerServiceURL', 'object knows about AssertionConsumerServiceURL' );
+is( $saml->{ID}, 'gabbagabbahey', 'object knows about ID' );
+ok( $saml->{IssueInstant} eq makeIssueInstant( $time ) || $saml->{IssueInstant} eq makeIssueInstant( $time + 1), 'IssueInstant looks ok' );
+
+
+$saml = Google::SAML::Request->new(
+            {
+                ProviderName                => 'provider',
+                AssertionConsumerServiceURL => 'http://AssertionConsumerServiceURL',
+                ID                          => 'gabbagabbahey',
+                IssueInstant                => 'atimestampinadifferentformat'
+            } );
+
+is( $saml->ProviderName, 'provider', 'ProviderName accessor works' );
+is( $saml->AssertionConsumerServiceURL, 'http://AssertionConsumerServiceURL', 'AssertionConsumerServiceURL accessor works' );
+is( $saml->ID, 'gabbagabbahey', 'ID accessor works' );
+is( $saml->IssueInstant,  'atimestampinadifferentformat', 'IssueInstant accessor works' );
+
+
+
+sub makeIssueInstant {
+    my $time = shift;
+    return time2str( "%Y-%m-%dT%XZ", $time, 'UTC' )
+}
+
 
