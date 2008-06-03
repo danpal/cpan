@@ -3,7 +3,6 @@ Makefile.PL
 MANIFEST
 Changes
 README
-lib/Google/SAMLResponse.pm
-t/test.t
+lib/Google/SAML/Response.pm
 t/001_load.t
 t/rsa.private.key

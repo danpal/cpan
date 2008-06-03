@@ -65,13 +65,11 @@ You will need the following modules installed:
 
 =item * XML::Canonical or XML::CanonicalizeXML
 
-=item * MIME::Base64
-
 =item * Digest::SHA
 
 =item * Date::Format
 
-=item * Compress::Zlib
+=item * Google::SAML::Request
 
 =back
 
@@ -106,6 +104,7 @@ use MIME::Base64;
 use Digest::SHA qw/ sha1 /;
 use Date::Format;
 use Compress::Zlib;
+use Google::SAML::Request;
 use Carp;
 
 
@@ -222,38 +221,6 @@ sub _load_key {
     return;
 }
 
-
-
-
-sub _decode_saml_msg {
-    my $self = shift;
-	my $msg  = $self->{request};
-    $self->{inflated_SAMLRequest} = undef;
-
-	my $decoded = decode_base64( $msg );
-
-	my ( $i, $status ) = inflateInit( -WindowBits => -&MAX_WBITS() );
-
-	if ( $status == Z_OK ) {
-		my $inflated;
-		($inflated, $status) = $i->inflate( $decoded );
-
-		if ( $status == Z_OK || $status == Z_STREAM_END ) {
-		    $inflated =~ m/AssertionConsumerServiceURL="([^"]+)"/;
-		    $self->{service_url} = $1;
-		    $self->{inflated_SAMLRequest} = $inflated;
-		    return 1;
-		}
-		else {
-			warn "Could not inflate";
-		}
-	}
-	else {
-		warn "no inflater";
-	}
-
-	return;
-}
 
 
 =head2 get_response_xml
