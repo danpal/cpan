@@ -3,9 +3,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 26;
 use Test::Exception;
 use Date::Format;
+use URI::Escape;
 
 BEGIN {
     use_ok( 'Google::SAML::Request' );
@@ -78,6 +79,17 @@ is( $saml->AssertionConsumerServiceURL, 'http://AssertionConsumerServiceURL', 'A
 is( $saml->ID, 'gabbagabbahey', 'ID accessor works' );
 is( $saml->IssueInstant,  'atimestampinadifferentformat', 'IssueInstant accessor works' );
 
+
+$ENV{QUERY_STRING}   = "fooBar=" . uri_escape($request);
+$ENV{REQUEST_METHOD} = 'GET';
+
+
+my $saml4 = Google::SAML::Request->new_from_cgi( { param_name => 'fooBar' } );
+isa_ok( $saml4, 'Google::SAML::Request', 'Got a Google::SAML::Request object' );
+is( $saml4->ProviderName,                'google.com', 'ProviderName accessor works' );
+is( $saml4->AssertionConsumerServiceURL, 'https://www.google.com/hosted/psosamldemo.net/acs', 'AssertionConsumerServiceURL accessor works' );
+is( $saml4->ID,                          'fpagejpkbhmddfodlbmnfhdginimekieckijbeei', 'ID accessor works' );
+is( $saml4->IssueInstant,                '2006-05-02T08:49:40Z', 'IssueInstant accessor works' );
 
 
 sub makeIssueInstant {
