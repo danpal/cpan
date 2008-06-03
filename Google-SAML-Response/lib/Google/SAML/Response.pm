@@ -3,11 +3,11 @@
 #  This program is free software; you can redistribute it and/or
 #  modify it under the same terms as Perl itself.
 
-package Google::SAMLResponse;
+package Google::SAML::Response;
 
 =head1 NAME
 
-Google::SAMLResponse - Generate signed XML documents as SAMLResponses for Google's
+Google::SAML::Response - Generate signed XML documents as SAML responses for Google's
 SSO implementation
 
 =head1 VERSION
@@ -16,7 +16,7 @@ You are currently reading the documentation for version 0.01
 
 =head1 DESCRIPTION
 
-Google::SAMLResponse can be used to generate a signed
+Google::SAML::Response can be used to generate a signed
 xml document that is needed for logging your users into
 Google using SSO.
 
@@ -26,14 +26,14 @@ some sort of Google service such as Google mail. Now when using
 SSO with your Google partner account, Google will redirect users
 to a URL that you can define. Behind this URL, you can have a script
 that can authenticate users in your original framework, generate
-a SAMLResponse for Google that you send to your users who then
+a SAML::Response for Google that you send to your users who then
 submit it to Google. If everything works, users will then be logged
 into a Google account and they don't even have to know their usernames
 or passwords.
 
 =head1 SYNOPSIS
 
- use Google::SAMLResponse;
+ use Google::SAML::Response;
  use CGI;
 
  # get SAMLRequest parameter:
@@ -45,8 +45,8 @@ or passwords.
  # find our user's login for Google
  ...
 
- # Generate SAMLResponse
- my $saml = Google::SAMLResponse::new( key = $key, login => $login, request => $request );
+ # Generate SAML::Response
+ my $saml = Google::SAML::Response::new( key = $key, login => $login, request => $request );
  my $xml  = $saml->generate_signed_xml();
 
  # Alternatively, send a HTML page to the client that will redirect
@@ -170,7 +170,9 @@ sub new {
 
     bless $self, $class;
 
-    if ( $self->_decode_saml_msg() && $self->_load_key() ) {
+    my $request = Google::SAML::Request->new_from_string( $self->{request} );
+
+    if ( $request && $self->_load_key() ) {
 
         $self->{ ttl } = exists $params->{ ttl } ? $params->{ ttl } : 60*2;
         $self->{ canonicalizer } = exists $params->{ canonicalizer } ? $params->{ canonicalizer } : 'XML::CanonicalizeXML';
@@ -459,7 +461,7 @@ in debug.txt, your response will not be valid.
 
 This brings us to another issue: XML-canonicalization. There are currently two
 modules on CPAN that promise to do the work for you: XML::CanonicalizeXML and
-XML::Canonical. Both can be used with Google::SAMLResponse, however the default
+XML::Canonical. Both can be used with Google::SAML::Response, however the default
 is to use the former because it is easier to install. However, the latter's
 interface is much cleaner and Perl-like than the interface of the former.
 
