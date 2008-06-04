@@ -20,9 +20,13 @@ You are currently reading the documentation for version 0.01
 =head1 DESCRIPTION
 
 Google::SAML::Request will parse (and, for the sake of completeness, create)
-SAML requests as used by Google. Please note that Google::SAML::Request is by
+SAML requests as used by Google. B<Please note> that Google::SAML::Request is by
 no means a full implementation of the SAML 2.0 standard. But if you want to
 talk to Google to authenticate users, you should be fine.
+
+In fact, if you want to talk to Google about SSO, just use
+L<Google::SAML::Response|Google::SAML::Response>
+and you should be fine.
 
 =head1 SYNOPSIS
 
@@ -72,17 +76,17 @@ You will need the following modules installed:
 
 =over
 
-=item * MIME::Base64
+=item * L<MIME::Base64|MIME::Base64>
 
-=item * Compress::Zlib
+=item * L<Compress::Zlib|Compress::Zlib>
 
-=item * Date::Format
+=item * L<Date::Format|Date::Format>
 
-=item * XML::Simple
+=item * L<XML::Simple|XML::Simple>
 
-=item * URI::Escape
+=item * L<URI::Escape|URI::Escape>
 
-=item * CGI (if you are going to use the 'new_from_cgi' constructor)
+=item * L<CGI|CGI> (if you are going to use the 'new_from_cgi' constructor)
 
 =back
 
@@ -134,11 +138,11 @@ The URL the user used to contact you. E.g. 'https://www.google.com/hosted/psosam
 
 =item * IssueInstant
 
-The time stamp for the Request. Default is now.
+The time stamp for the Request. Default is I<now>.
 
 =item * ID
 
-If you need to create the ID yourself, use this option. Otherwise an ID is
+If you need to create the ID yourself, use this option. Otherwise the ID is
 generated from the current time and a pseudo-random number.
 
 =back
@@ -420,7 +424,7 @@ sub ProviderName { return shift->{ProviderName}; }
 
 =head1 AUTHOR
 
-Manni Heumann
+Manni Heumann (saml at lxxi dot org)
 
 
 =head1 LICENSE

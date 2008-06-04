@@ -1,7 +1,9 @@
+Changes
 LICENSE
 Makefile.PL
 MANIFEST
-Changes
 README
 lib/Google/SAML/Request.pm
 t/001_load.t
+t/002_output.t
+t/003_params.t

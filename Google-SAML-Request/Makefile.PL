@@ -14,6 +14,7 @@ use ExtUtils::MakeMaker;
             'Compress::Zlib'  => 0,
             'Date::Format'    => 0,
             'XML::Simple'     => 0,
+            'CGI'             => 0,
             'Carp'            => 0,
             'Test::More'      => 0,
             'Test::Exception' => 0,

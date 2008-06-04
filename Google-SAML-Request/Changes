@@ -1,6 +1,6 @@
-Revision history for Perl module Google::SAMLResponse
+Revision history for Perl module Google::SAML::Request
 
-0.01 Sun Jun  1 17:14:15 2008
+0.01 Wed Jun 4
     - initial release
 
 
