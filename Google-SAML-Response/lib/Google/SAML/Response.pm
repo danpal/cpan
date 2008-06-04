@@ -173,7 +173,7 @@ sub new {
     my $request = Google::SAML::Request->new_from_string( $self->{request} );
 
     if ( $request && $self->_load_key() ) {
-
+        $self->{service_url} = $request->AssertionConsumerServiceURL();
         $self->{ ttl } = exists $params->{ ttl } ? $params->{ ttl } : 60*2;
         $self->{ canonicalizer } = exists $params->{ canonicalizer } ? $params->{ canonicalizer } : 'XML::CanonicalizeXML';
 
@@ -319,6 +319,7 @@ sub _signedinfo_xml {
 }
 
 
+
 sub _reference_xml {
     my $self = shift;
     my $digest = shift;
@@ -352,6 +353,9 @@ sub _canonicalize_xml {
         confess "Unknown XML canonicalizer module.";
     }
 }
+
+
+
 
 sub _response_xml {
     my $self = shift;
@@ -399,6 +403,9 @@ sub _response_xml {
 };
 }
 
+
+
+
 =head2 get_google_form
 
 This function will give you a complete HTML page (including the HTTP headers) that
@@ -410,7 +417,7 @@ to give clients a html page that contains a hidden form that uses Javascript
 to post that form to Google. Ugly, but it works. The form will contain a textarea
 containing the response xml and a textarea containing the relay state.
 
-Hence the first required argument: the RelayState parameter out of the user's GET request
+Hence the only required argument: the RelayState parameter out of the user's GET request
 
 The second parameter is the Login-URL for you users at Google. This is where the
 form will be posted to (the action parameter).
@@ -420,7 +427,8 @@ form will be posted to (the action parameter).
 sub get_google_form {
     my $self = shift;
     my $rs   = shift;
-    my $url  = shift;
+
+    my $url  = $self->{service_url};
 
     my $output = "Content-type: text/html\n\n";
     $output .= "<html><head></head><body onload='javascript:document.acsForm.submit()'>\n";
