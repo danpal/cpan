@@ -28,4 +28,5 @@ SKIP: {
     }
     my $verify_response = `xmlsec1 --verify tmp.xml 2>&1`;
     ok( $verify_response =~ m/^OK/, "Response is OK for xmlsec1" );
+    unlink 'tmp.xml';
 }

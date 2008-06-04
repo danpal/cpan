@@ -55,9 +55,8 @@ or passwords.
 
  # Alternatively, send a HTML page to the client that will redirect
  # her to Google. You have to extract the RelayState param from the cgi
- # environment first. $login_url is the URL your users use to log on to
- # Google.
- print $saml->get_google_form( $relayState, $login_url );
+ # environment first.
+ print $saml->get_google_form( $relayState );
 
 =head1 PREREQUISITES
 
@@ -65,15 +64,15 @@ You will need the following modules installed:
 
 =over
 
-=item * Crypt::OpenSSL::RSA
+=item * L<Crypt::OpenSSL::RSA|Crypt::OpenSSL::RSA>
 
-=item * XML::Canonical or XML::CanonicalizeXML
+=item * L<XML::Canonical or XML::CanonicalizeXML|XML::Canonical or XML::CanonicalizeXML>
 
-=item * Digest::SHA
+=item * L<Digest::SHA|Digest::SHA>
 
-=item * Date::Format
+=item * L<Date::Format|Date::Format>
 
-=item * Google::SAML::Request
+=item * L<Google::SAML::Request|Google::SAML::Request>
 
 =back
 
@@ -84,15 +83,15 @@ You will need the following modules installed:
 
 =item XML-Signature Syntax and Processing
 
-http://www.w3.org/TR/xmldsig-core/
+L<http://www.w3.org/TR/xmldsig-core/>
 
 =item Google-Documentation on SSO and SAML
 
-http://code.google.com/apis/apps/sso/saml_reference_implementation.html
+L<http://code.google.com/apis/apps/sso/saml_reference_implementation.html>
 
 =item XML Security Library
 
-http://www.aleksey.com/xmlsec/
+L<http://www.aleksey.com/xmlsec/>
 
 =back
 
@@ -123,17 +122,17 @@ the signed xml later on. Parameters are passed in as a hash-reference.
 
 =over
 
-=item * request => STRING
+=item * request
 
 The SAML request, base64-encoded and all, just as retrieved from the GET
 request your user contacted you with
 
-=item * key => STRING
+=item * key
 
 The path to your private key that will be used to sign the response. Currently,
-only RSA keys are supported.
+only RSA keys without pass phrases are supported.
 
-=item * login => STRING
+=item * login
 
 Your user's login name with Google
 
@@ -143,14 +142,15 @@ Your user's login name with Google
 
 =over
 
-=item * ttl => INT
+=item * ttl
 
 Time to live: Number of seconds your response should be valid. Default is two minutes.
 
-=item * canonicalizer => STRING
+=item * canonicalizer
 
 The name of the module that will be used to canonicalize parts of our xml. Currently,
-XML::Canonical and XML::CanonicalizeXML are supported. XML::CanonicalizeXML is the default.
+L<XML::Canonical|XML::Canonical> and L<XML::CanonicalizeXML|XML::CanonicalizeXML> are
+supported. L<XML::CanonicalizeXML|XML::CanonicalizeXML> is the default.
 
 =back
 
@@ -233,7 +233,9 @@ sub _load_key {
 
 Generate the signed response xml and return it as a string
 
-The method does what the w3c tells us to do (http://www.w3.org/TR/xmldsig-core/#sec-CoreGeneration):
+The method does what the w3c tells us to do (L<http://www.w3.org/TR/xmldsig-core/#sec-CoreGeneration>):
+
+=over
 
 3.1.1 Reference Generation
 
@@ -252,6 +254,8 @@ For each data object being signed:
 2. Canonicalize and then calculate the SignatureValue over SignedInfo based on algorithms specified in SignedInfo.
 
 3. Construct the Signature element that includes SignedInfo, Object(s) (if desired, encoding may be different than that used for signing), KeyInfo (if required), and SignatureValue.
+
+=back
 
 =cut
 
@@ -424,9 +428,6 @@ containing the response xml and a textarea containing the relay state.
 
 Hence the only required argument: the RelayState parameter out of the user's GET request
 
-The second parameter is the Login-URL for you users at Google. This is where the
-form will be posted to (the action parameter).
-
 =cut
 
 sub get_google_form {
@@ -469,21 +470,22 @@ against xmlsec1: If your response is stored in the file test.xml, you can simply
 
 This will give you a file debug.txt with lots of information, most importantly it
 will give you the canonical xml versions of your response and the References
-element. If you canonical xml of these two elements isn't exactly like the one
+element. If your canonical xml of these two elements isn't exactly like the one
 in debug.txt, your response will not be valid.
 
 This brings us to another issue: XML-canonicalization. There are currently two
-modules on CPAN that promise to do the work for you: XML::CanonicalizeXML and
-XML::Canonical. Both can be used with Google::SAML::Response, however the default
-is to use the former because it is easier to install. However, the latter's
-interface is much cleaner and Perl-like than the interface of the former.
+modules on CPAN that promise to do the work for you:
+L<XML::CanonicalizeXML|XML::CanonicalizeXML> and L<XML::Canonical|XML::Canonical>.
+Both can be used with Google::SAML::Response, however the default is to use the former
+because it is much easier to install. However, the latter's interface is much
+cleaner and Perl-like than the interface of the former.
 
-Both of these modules are tricky to install. XML::Canonical uses XML::GDOME
-which has a stupid Makefile.PL that begs to be hacked because it insists on using the
-exact version of gdome that was available when Makefile.PL was written and then
-it still doesn't install without force. XML::CanonicalizeXML is much easier to
-install, you just have to have the libxml development files installed so it
-will compile.
+L<XML::Canonical|XML::Canonical> uses L<XML::GDOME|XML::GDOME> which has a stupid
+Makefile.PL that begs to be hacked because it insists on using the exact version
+of gdome that was available when Makefile.PL was written and then it still doesn't
+install without force. L<XML::CanonicalizeXML|XML::CanonicalizeXML> is much easier
+to install, you just have to have the libxml development files installed so it will
+compile.
 
 =head1 TODO
 
@@ -491,12 +493,13 @@ will compile.
 
 =item * Add support for DSA keys
 
+=item * Add support for encrypted keys
+
 =back
 
 =head1 AUTHOR
 
-Manni Heumann
-
+Manni Heumann (saml at lxxi dot org)
 
 =head1 LICENSE
 
