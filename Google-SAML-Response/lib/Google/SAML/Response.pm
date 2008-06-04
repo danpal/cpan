@@ -2,6 +2,10 @@
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the same terms as Perl itself.
+#
+#   Date: $Date$
+#   Revision: $Revision$
+#
 
 package Google::SAML::Response;
 
@@ -280,7 +284,8 @@ sub get_response_xml {
     my $signature_xml = $self->_signature_xml( $signed_info, $signature );
 
     # Now insert the signature xml into our response xml
-    $xml =~ s{</Assertion>}{</Assertion>$signature_xml};
+    #$xml =~ s{</Assertion>}{</Assertion>$signature_xml};
+    $xml =~ s/<samlp:Status>/$signature_xml<samlp:Status>/;
 
     return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" . $xml;
 }
