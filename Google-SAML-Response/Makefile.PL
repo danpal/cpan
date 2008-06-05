@@ -10,6 +10,7 @@ use ExtUtils::MakeMaker;
     ABSTRACT_FROM       => 'lib/Google/SAML/Response.pm',
     PL_FILES            => {},
     PREREQ_PM           => { 
+            'Google::SAML::Request'     => 0,
             'Date::Format'              => 0,
             'Crypt::OpenSSL::RSA'       => 0,
             'Digest::SHA'               => 0,

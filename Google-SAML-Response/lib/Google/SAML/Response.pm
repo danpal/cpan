@@ -480,9 +480,9 @@ Both can be used with Google::SAML::Response, however the default is to use the 
 because it is much easier to install. However, the latter's interface is much
 cleaner and Perl-like than the interface of the former.
 
-L<XML::Canonical|XML::Canonical> uses L<XML::GDOME|XML::GDOME> which has a stupid
-Makefile.PL that begs to be hacked because it insists on using the exact version
-of gdome that was available when Makefile.PL was written and then it still doesn't
+L<XML::Canonical|XML::Canonical> uses L<XML::GDOME|XML::GDOME> which has a
+Makefile.PL that begs to be hacked because it insists on using the version
+of gdome that was available when Makefile.PL was written (2003) and then it still doesn't
 install without force. L<XML::CanonicalizeXML|XML::CanonicalizeXML> is much easier
 to install, you just have to have the libxml development files installed so it will
 compile.
