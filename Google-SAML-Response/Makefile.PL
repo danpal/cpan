@@ -13,6 +13,7 @@ use ExtUtils::MakeMaker;
             'Google::SAML::Request'     => 0,
             'Date::Format'              => 0,
             'Crypt::OpenSSL::RSA'       => 0,
+            'Crypt::OpenSSL::Bignum'    => 0,
             'Digest::SHA'               => 0,
             'Carp'                      => 0,
             'XML::CanonicalizeXML'      => 0,
