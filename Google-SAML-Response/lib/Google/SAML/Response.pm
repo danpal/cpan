@@ -16,7 +16,7 @@ SSO implementation
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.01
+You are currently reading the documentation for version 0.04
 
 =head1 DESCRIPTION
 
