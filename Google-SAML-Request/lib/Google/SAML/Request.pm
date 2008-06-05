@@ -105,7 +105,7 @@ use XML::Simple;
 use URI::Escape;
 
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head2 new
