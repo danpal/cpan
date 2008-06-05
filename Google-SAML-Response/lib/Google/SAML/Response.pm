@@ -111,7 +111,7 @@ use Google::SAML::Request;
 use Carp;
 
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head2 new
 
