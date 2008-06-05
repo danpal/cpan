@@ -1,5 +1,8 @@
 Revision history for Perl module Google::SAML::Response
 
+0.03 Thu Jun 5
+	- Add yet another missing dependency to Makefile.PL: Crypt::OpenSSL::Bignum
+
 0.02 Thu Jun 5
     - Add missing dependency Google::SAML::Request to Makefile.PL
 
