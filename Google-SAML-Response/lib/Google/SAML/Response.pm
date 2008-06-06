@@ -66,6 +66,8 @@ You will need the following modules installed:
 
 =item * L<Crypt::OpenSSL::RSA|Crypt::OpenSSL::RSA>
 
+=item * L<Crypt::OpenSSL::Bignum|Crypt::OpenSSL::Bignum>
+
 =item * L<XML::Canonical or XML::CanonicalizeXML|XML::Canonical or XML::CanonicalizeXML>
 
 =item * L<Digest::SHA|Digest::SHA>
@@ -75,7 +77,6 @@ You will need the following modules installed:
 =item * L<Google::SAML::Request|Google::SAML::Request>
 
 =back
-
 
 =head1 RESOURCES
 
