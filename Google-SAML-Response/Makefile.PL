@@ -3,7 +3,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 
-    WriteMakefile(
+WriteMakefile(
     NAME                => 'Google::SAML::Response',
     AUTHOR              => 'Manni Heumann <saml@lxxi.org>',
     VERSION_FROM        => 'lib/Google/SAML/Response.pm',
