@@ -383,6 +383,9 @@ sub _response_xml {
     # A 160-bit string containing a set of randomly generated characters.
     my $assertion_id = sprintf 'GOSAML%010d%04d', time, rand(10000);
 
+    # The acs url
+    my $assertion_url = $self->{service_url};
+
     # The username for the authenticated user.
     my $username = $self->{login};
 
@@ -400,7 +403,9 @@ sub _response_xml {
            <Issuer>https://www.opensaml.org/IDP</Issuer>
            <Subject>
               <NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">$username</NameID>
-              <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"></SubjectConfirmation>
+              <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                 <SubjectConfirmationData Recipient="$assertion_url" />
+              </SubjectConfirmation>
            </Subject>
            <Conditions NotBefore="$issue_instant" NotOnOrAfter="$best_before"> </Conditions>
            <AuthnStatement AuthnInstant="$authn_instant">
