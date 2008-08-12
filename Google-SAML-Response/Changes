@@ -1,5 +1,14 @@
 Revision history for Perl module Google::SAML::Response
 
+0.05 Tue Aug 12
+    - Add even more recipient information and the AudienceRestriction tag
+    - Add support for DSA keys
+
+0.04 Tue Jul 29
+    - Add recipient information to response xml as specified by Google
+      (http://code.google.com/apis/apps/faq.html#recipient). Thanks to
+      Dusty Wilson for the patch!
+
 0.03 Thu Jun 5
 	- Add yet another missing dependency to Makefile.PL: Crypt::OpenSSL::Bignum
 

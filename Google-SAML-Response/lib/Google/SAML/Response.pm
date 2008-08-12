@@ -16,7 +16,7 @@ SSO implementation
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.04
+You are currently reading the documentation for version 0.05
 
 =head1 DESCRIPTION
 
@@ -66,6 +66,8 @@ You will need the following modules installed:
 
 =item * L<Crypt::OpenSSL::RSA|Crypt::OpenSSL::RSA>
 
+=item * L<Crypt::OpenSSL::DSA|Crypt::OpenSSL::DSA>
+
 =item * L<Crypt::OpenSSL::Bignum|Crypt::OpenSSL::Bignum>
 
 =item * L<XML::Canonical or XML::CanonicalizeXML|XML::Canonical or XML::CanonicalizeXML>
@@ -104,6 +106,7 @@ use strict;
 use warnings;
 
 use Crypt::OpenSSL::RSA;
+use Crypt::OpenSSL::DSA;
 use MIME::Base64;
 use Digest::SHA qw/ sha1 /;
 use Date::Format;
@@ -112,7 +115,7 @@ use Google::SAML::Request;
 use Carp;
 
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
 
 =head2 new
 
@@ -131,7 +134,7 @@ request your user contacted you with
 =item * key
 
 The path to your private key that will be used to sign the response. Currently,
-only RSA keys without pass phrases are supported.
+only RSA and DSA keys without pass phrases are supported.
 
 =item * login
 
@@ -178,8 +181,9 @@ sub new {
     my $request = Google::SAML::Request->new_from_string( $self->{request} );
 
     if ( $request && $self->_load_key() ) {
-        $self->{service_url} = $request->AssertionConsumerServiceURL();
-        $self->{ ttl } = exists $params->{ ttl } ? $params->{ ttl } : 60*2;
+        $self->{ service_url }   = $request->AssertionConsumerServiceURL();
+        $self->{ request_id }    = $request->ID();
+        $self->{ ttl }           = ( exists $params->{ ttl } ) ? $params->{ ttl } : 60*2;
         $self->{ canonicalizer } = exists $params->{ canonicalizer } ? $params->{ canonicalizer } : 'XML::CanonicalizeXML';
 
         return $self;
@@ -192,33 +196,78 @@ sub new {
 
 
 
+sub _load_dsa_key {
+    my $self = shift;
+    my $key_text = shift;
+
+    my $dsa_key = Crypt::OpenSSL::DSA->read_priv_key_str( $key_text );
+
+    if ( $dsa_key ) {
+        $self->{ key_obj } = $dsa_key;
+        my $g = encode_base64( $dsa_key->get_g(), '' );
+        my $p = encode_base64( $dsa_key->get_p(), '' );
+        my $q = encode_base64( $dsa_key->get_q(), '' );
+        my $y = encode_base64( $dsa_key->get_pub_key(), '' );
+
+        $self->{KeyInfo} = "<KeyInfo><KeyValue><DSAKeyValue><P>$p</P><Q>$q</Q><G>$g</G><Y>$y</Y></DSAKeyValue></KeyValue></KeyInfo>";
+        $self->{key_type} = 'dsa';
+    }
+    else {
+        confess "did not get a new Crypt::OpenSSL::RSA object";
+    }
+}
+
+
+sub _load_rsa_key {
+    my $self = shift;
+    my $key_text = shift;
+
+    my $rsaKey = Crypt::OpenSSL::RSA->new_private_key( $key_text );
+
+    if ( $rsaKey ) {
+        $rsaKey->use_pkcs1_padding();
+        $self->{ key_obj } = $rsaKey;
+
+        my $bigNum = ( $rsaKey->get_key_parameters() )[1];
+        my $bin = $bigNum->to_bin();
+        my $exp = encode_base64( $bin, '' );
+
+        $bigNum = ( $rsaKey->get_key_parameters() )[0];
+        $bin = $bigNum->to_bin();
+        my $mod = encode_base64( $bin, '' );
+        $self->{KeyInfo} = "<KeyInfo><KeyValue><RSAKeyValue><Modulus>$mod</Modulus><Exponent>$exp</Exponent></RSAKeyValue></KeyValue></KeyInfo>";
+        $self->{key_type} = 'rsa';
+    }
+    else {
+        confess "did not get a new Crypt::OpenSSL::RSA object";
+    }
+}
+
+
 sub _load_key {
     my $self = shift;
     my $file = $self->{ key };
-    $self->{ rsa_key } = undef;
 
     if ( open my $KEY, '<', $file ) {
         my $text = '';
         local $/ = undef;
         $text = <$KEY>;
         close $KEY;
-        my $rsaKey = Crypt::OpenSSL::RSA->new_private_key( $text );
 
-        if ( $rsaKey ) {
-            $self->{ rsa_key } = $rsaKey;
+        if ( $text =~ m/BEGIN ([DR]SA) PRIVATE KEY/ ) {
+            my $key_used = $1;
 
-            my $bigNum = ( $rsaKey->get_key_parameters() )[1];
-            my $bin = $bigNum->to_bin();
-            $self->{exponent} = encode_base64( $bin, '' );
-
-            $bigNum = ( $rsaKey->get_key_parameters() )[0];
-            $bin = $bigNum->to_bin();
-            $self->{modulus} = encode_base64( $bin, '' );
+            if ( $key_used eq 'RSA' ) {
+                $self->_load_rsa_key( $text );
+            }
+            else {
+                $self->_load_dsa_key( $text );
+            }
 
             return 1;
         }
         else {
-            warn "did not get a new Crypt::OpenSSL::RSA object";
+            confess "Could not detect type of key $file.";
         }
     }
     else {
@@ -264,25 +313,25 @@ sub get_response_xml {
     my $self = shift;
 
     # This is the xml response without any signatures or digests:
-    my $xml = $self->_response_xml();
+    my $xml           = $self->_response_xml();
 
     # We now calculate the SHA1 digest of the canoncial response xml
-    my $canonical = $self->_canonicalize_xml( $xml );
+    my $canonical     = $self->_canonicalize_xml( $xml );
 
-    my $bin_digest = sha1( $canonical );
-    my $digest = encode_base64( $bin_digest, '' );
+    my $bin_digest    = sha1( $canonical );
+    my $digest        = encode_base64( $bin_digest, '' );
 
     # Create a xml fragment containing the digest:
-    my $digest_xml = $self->_reference_xml( $digest );
+    my $digest_xml    = $self->_reference_xml( $digest );
 
     # create a xml fragment consisting of the SignedInfo element
-    my $signed_info = $self->_signedinfo_xml( $digest_xml );
+    my $signed_info   = $self->_signedinfo_xml( $digest_xml );
 
     # We now calculate a signature over the canonical SignedInfo element
-    $self->{rsa_key}->use_pkcs1_padding();
-    $canonical = $self->_canonicalize_xml( $signed_info );
-    my $bin_signature = $self->{rsa_key}->sign( $canonical );
-    my $signature = encode_base64( $bin_signature, "\n" );
+
+    $canonical        = $self->_canonicalize_xml( $signed_info );
+    my $bin_signature = $self->{key_obj}->sign( $canonical );
+    my $signature     = encode_base64( $bin_signature, "\n" );
 
     # With the signature value and the signedinfo element, we create
     # a Signature element:
@@ -304,14 +353,7 @@ sub _signature_xml {
     return qq{<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
             $signed_info
             <SignatureValue>$signature_value</SignatureValue>
-            <KeyInfo>
-                <KeyValue>
-                    <RSAKeyValue>
-                        <Modulus>$self->{modulus}</Modulus>
-                        <Exponent>$self->{exponent}</Exponent>
-                    </RSAKeyValue>
-                </KeyValue>
-            </KeyInfo>
+            $self->{KeyInfo}
         </Signature>};
 }
 
@@ -323,7 +365,7 @@ sub _signedinfo_xml {
 
     return qq{<SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
                 <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" />
-                <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+                <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#$self->{key_type}-sha1" />
                 $digest_xml
             </SignedInfo>};
 }
@@ -334,7 +376,7 @@ sub _reference_xml {
     my $self = shift;
     my $digest = shift;
 
-    return qq {<Reference URI="">
+    return qq{<Reference URI="">
                         <Transforms>
                             <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
                         </Transforms>
@@ -381,21 +423,24 @@ sub _response_xml {
     my $issue_instant = time2str( "%Y-%m-%dT%XZ", time, 'UTC' );
 
     # A 160-bit string containing a set of randomly generated characters.
-    my $assertion_id = sprintf 'GOSAML%010d%04d', time, rand(10000);
+    my $assertion_id  = sprintf 'GOSAML%010d%04d', time, rand(10000);
 
     # The acs url
     my $assertion_url = $self->{service_url};
 
     # The username for the authenticated user.
-    my $username = $self->{login};
+    my $username      = $self->{login};
 
     # A timestamp identifying the date and time after which the SAML response is deemed invalid.
-    my $best_before = time2str( "%Y-%m-%dT%XZ", time + $self->{ttl}, 'UTC' );
+    my $best_before   = time2str( "%Y-%m-%dT%XZ", time + $self->{ttl}, 'UTC' );
 
     # A timestamp indicating the date and time that you authenticated the user.
     my $authn_instant = $issue_instant;
 
-    return qq{<samlp:Response xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" ID="$response_id" IssueInstant="$issue_instant" Version="2.0">
+    my $request_id    = $self->{ request_id };
+
+    return
+        qq{<samlp:Response xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" ID="$response_id" IssueInstant="$issue_instant" Version="2.0">
         <samlp:Status>
            <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></samlp:StatusCode>
         </samlp:Status>
@@ -404,10 +449,18 @@ sub _response_xml {
            <Subject>
               <NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">$username</NameID>
               <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-                 <SubjectConfirmationData Recipient="$assertion_url" />
+                 <SubjectConfirmationData
+                    Recipient="$assertion_url"
+                    NotOnOrAfter="$best_before"
+                    InResponseTo="$request_id"
+                 />
               </SubjectConfirmation>
            </Subject>
-           <Conditions NotBefore="$issue_instant" NotOnOrAfter="$best_before"> </Conditions>
+           <Conditions NotBefore="$issue_instant" NotOnOrAfter="$best_before">
+             <AudienceRestriction>
+               <Audience>$assertion_url</Audience>
+             </AudienceRestriction>
+           </Conditions>
            <AuthnStatement AuthnInstant="$authn_instant">
               <AuthnContext>
                  <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>
@@ -417,8 +470,6 @@ sub _response_xml {
     </samlp:Response>
 };
 }
-
-
 
 
 =head2 get_google_form
@@ -466,16 +517,16 @@ sub get_google_form {
 
 =head1 REMARKS
 
-Coming up with a valid response for a SAMLRequest is quite tricky. The simplest
+Coming up with a valid response for a SAML-request is quite tricky. The simplest
 way to go is to use the xmlsec1 program distributed with the XML Security Library.
-Google seems to use that program itself. However, I wanted to have a Perlish way
-of comming up with the response. Testing your computed response is best done
+Google seems to use that program itself. However, I wanted to have a perlish way
+of creating the response. Testing your computed response is best done
 against xmlsec1: If your response is stored in the file test.xml, you can simply do:
 
  xmlsec1 --verify --store-references --store-signatures test.xml > debug.txt
 
 This will give you a file debug.txt with lots of information, most importantly it
-will give you the canonical xml versions of your response and the References
+will give you the canonical xml versions of your response and the 'References'
 element. If your canonical xml of these two elements isn't exactly like the one
 in debug.txt, your response will not be valid.
 
@@ -496,8 +547,6 @@ compile.
 =head1 TODO
 
 =over
-
-=item * Add support for DSA keys
 
 =item * Add support for encrypted keys
 

@@ -2,7 +2,7 @@
 
 # t/001_load.t - check module loading
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 BEGIN {
     use_ok( 'Google::SAML::Response' );
@@ -18,3 +18,13 @@ my $saml = Google::SAML::Response->new(
     }
 );
 isa_ok( $saml, 'Google::SAML::Response' );
+
+
+my $saml2 = Google::SAML::Response->new(
+    {
+        key     => 't/dsa.private.key',
+        request => $request,
+        login   => 'somebody',
+    }
+);
+isa_ok( $saml2, 'Google::SAML::Response' );
