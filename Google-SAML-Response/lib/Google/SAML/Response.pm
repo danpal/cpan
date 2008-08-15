@@ -66,8 +66,6 @@ You will need the following modules installed:
 
 =item * L<Crypt::OpenSSL::RSA|Crypt::OpenSSL::RSA>
 
-=item * L<Crypt::OpenSSL::DSA|Crypt::OpenSSL::DSA>
-
 =item * L<Crypt::OpenSSL::Bignum|Crypt::OpenSSL::Bignum>
 
 =item * L<XML::Canonical or XML::CanonicalizeXML|XML::Canonical or XML::CanonicalizeXML>
@@ -106,7 +104,6 @@ use strict;
 use warnings;
 
 use Crypt::OpenSSL::RSA;
-use Crypt::OpenSSL::DSA;
 use MIME::Base64;
 use Digest::SHA qw/ sha1 /;
 use Date::Format;
@@ -134,7 +131,9 @@ request your user contacted you with
 =item * key
 
 The path to your private key that will be used to sign the response. Currently,
-only RSA and DSA keys without pass phrases are supported.
+only RSA and DSA keys without pass phrases are supported. NOTE: To handle DSA keys,
+the module L<Crypt::OpenSSL::DSA|Crypt::OpenSSL::DSA> needs to be installed. However,
+it is not listed as a requirement in the Makefile for Google::SAML::Response.
 
 =item * login
 
@@ -199,6 +198,12 @@ sub new {
 sub _load_dsa_key {
     my $self = shift;
     my $key_text = shift;
+
+    eval {
+        require Crypt::OpenSSL::DSA;
+    };
+
+    confess "Crypt::OpenSSL::RSA needs to be installed so that we can handle DSA keys." if $@;
 
     my $dsa_key = Crypt::OpenSSL::DSA->read_priv_key_str( $key_text );
 
