@@ -11,8 +11,8 @@ package Google::SAML::Response;
 
 =head1 NAME
 
-Google::SAML::Response - Generate signed XML documents as SAML responses for Google's
-SSO implementation
+Google::SAML::Response - Generate signed XML documents as SAML responses for
+Google's SSO implementation
 
 =head1 VERSION
 
@@ -20,20 +20,20 @@ You are currently reading the documentation for version 0.05
 
 =head1 DESCRIPTION
 
-Google::SAML::Response can be used to generate a signed
-xml document that is needed for logging your users into
-Google using SSO.
+Google::SAML::Response can be used to generate a signed XML document that is
+needed for logging your users into Google using SSO.
 
-For example, you have some sort of application that authenticates
-users such as a web application. Your users should be able to use
-some sort of Google service such as Google mail. Now when using
-SSO with your Google partner account, Google will redirect users
-to a URL that you can define. Behind this URL, you can have a script
-that can authenticate users in your original framework, generate
-a SAML::Response for Google that you send to your users who then
-submit it to Google. If everything works, users will then be logged
-into a Google account and they don't even have to know their usernames
-or passwords.
+You have some sort of web application that can identify and authenticate users.
+You want users to be able to use some sort of Google service such as Google mail.
+
+When using SSO with your Google partner account, your users will send a request
+to a Google URL. If the user isn't already logged in to Google, Google will
+redirect him to a URL that you can define. Behind this URL, you need to have
+a script that authenticates users in your original framework and generates a
+SAML response for Google that you send back to the user whose browser will  then
+submit it back to Google. If everything works, users will then be logged into
+their Google account and they don't even have to know their usernames or
+passwords.
 
 =head1 SYNOPSIS
 
@@ -41,7 +41,7 @@ or passwords.
  use CGI;
 
  # get SAMLRequest parameter:
- my $request = CGI->new()->param('SAMLRequest');
+ my $req = CGI->new()->param('SAMLRequest');
 
  # authenticate user
  ...
@@ -49,8 +49,8 @@ or passwords.
  # find our user's login for Google
  ...
 
- # Generate SAML::Response
- my $saml = Google::SAML::Response::new( key = $key, login => $login, request => $request );
+ # Generate SAML response
+ my $saml = Google::SAML::Response->new( key = $key, login => $login, request => $req );
  my $xml  = $saml->generate_signed_xml();
 
  # Alternatively, send a HTML page to the client that will redirect
@@ -126,7 +126,7 @@ the signed xml later on. Parameters are passed in as a hash-reference.
 =item * request
 
 The SAML request, base64-encoded and all, just as retrieved from the GET
-request your user contacted you with
+request your user contacted you with (make sure that it's not url-encoded, though)
 
 =item * key
 
@@ -203,7 +203,7 @@ sub _load_dsa_key {
         require Crypt::OpenSSL::DSA;
     };
 
-    confess "Crypt::OpenSSL::RSA needs to be installed so that we can handle DSA keys." if $@;
+    confess "Crypt::OpenSSL::DSA needs to be installed so that we can handle DSA keys." if $@;
 
     my $dsa_key = Crypt::OpenSSL::DSA->read_priv_key_str( $key_text );
 
@@ -488,7 +488,7 @@ to give clients a html page that contains a hidden form that uses Javascript
 to post that form to Google. Ugly, but it works. The form will contain a textarea
 containing the response xml and a textarea containing the relay state.
 
-Hence the only required argument: the RelayState parameter out of the user's GET request
+Hence the only required argument: the RelayState parameter from the user's GET request
 
 =cut
 

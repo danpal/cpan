@@ -10,3 +10,4 @@ t/003_params.t
 t/004_keyhandling.t
 t/005_interface.t
 t/rsa.private.key
+t/dsa.private.key

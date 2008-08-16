@@ -1,6 +1,6 @@
 Revision history for Perl module Google::SAML::Response
 
-0.05 Tue Aug 12
+0.05 Tue Aug 16
     - Add even more recipient information and the AudienceRestriction tag
     - Add support for DSA keys
 
