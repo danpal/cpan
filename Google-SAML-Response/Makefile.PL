@@ -16,6 +16,7 @@ WriteMakefile(
             'Crypt::OpenSSL::DSA'       => 0,
             'Crypt::OpenSSL::Bignum'    => 0,
             'Digest::SHA'               => 0,
+            'File::Which'               => 0,
             'Carp'                      => 0,
             'XML::CanonicalizeXML'      => 0,
             'Test::More'                => 0,

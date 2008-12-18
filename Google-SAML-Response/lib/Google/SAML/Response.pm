@@ -16,7 +16,7 @@ Google's SSO implementation
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.05
+You are currently reading the documentation for version 0.06
 
 =head1 DESCRIPTION
 
@@ -112,7 +112,7 @@ use Google::SAML::Request;
 use Carp;
 
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head2 new
 
@@ -183,7 +183,8 @@ sub new {
         $self->{ service_url }   = $request->AssertionConsumerServiceURL();
         $self->{ request_id }    = $request->ID();
         $self->{ ttl }           = ( exists $params->{ ttl } ) ? $params->{ ttl } : 60*2;
-        $self->{ canonicalizer } = exists $params->{ canonicalizer } ? $params->{ canonicalizer } : 'XML::CanonicalizeXML';
+        $self->{ canonicalizer } =
+            exists $params->{ canonicalizer } ? $params->{ canonicalizer } : 'XML::CanonicalizeXML';
 
         return $self;
     }
