@@ -16,7 +16,7 @@ Google's SSO implementation
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.06
+You are currently reading the documentation for version 0.07
 
 =head1 DESCRIPTION
 
@@ -112,7 +112,7 @@ use Google::SAML::Request;
 use Carp;
 
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 =head2 new
 

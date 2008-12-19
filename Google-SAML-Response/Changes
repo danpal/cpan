@@ -1,5 +1,8 @@
 Revision history for Perl module Google::SAML::Response
 
+0.07 Fri Dec 19 2008
+    - Repair the broken package 0.06 which wouldn't pass the tests
+
 0.06 Thu Dec 18 2008
     - Improve the xmlsec test a bit so that we can be sure (can we?)
       about xmlsec being installed or not.
