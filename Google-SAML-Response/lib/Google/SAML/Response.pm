@@ -50,7 +50,7 @@ passwords.
  ...
 
  # Generate SAML response
- my $saml = Google::SAML::Response->new( key = $key, login => $login, request => $req );
+ my $saml = Google::SAML::Response->new( { key => $key, login => $login, request => $req } );
  my $xml  = $saml->generate_signed_xml();
 
  # Alternatively, send a HTML page to the client that will redirect
