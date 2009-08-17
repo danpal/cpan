@@ -1,4 +1,4 @@
-#  Copyright (c) 2008 Manni Heumann. All rights reserved.
+#  Copyright (c) 2009 Manni Heumann. All rights reserved.
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the same terms as Perl itself.
@@ -16,7 +16,7 @@ Google's SSO implementation
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.07
+You are currently reading the documentation for version 0.08
 
 =head1 DESCRIPTION
 
@@ -112,7 +112,7 @@ use Google::SAML::Request;
 use Carp;
 
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head2 new
 

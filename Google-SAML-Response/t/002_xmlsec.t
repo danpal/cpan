@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More qw/ no_plan /;
 use File::Which;
 
 
@@ -13,6 +13,12 @@ BEGIN {
 
 SKIP: {
     skip "xmlsec1 not installed", 6 unless which('xmlsec1');
+
+    # Try whether xmlsec is correctly installed which 
+    # doesn't seem to be the case on every cpan testing machine
+
+    my $output = `xmlsec1 --version`;
+    skip "xmlsec1 not correctly installed", 6 if $?;
 
     my $request = 'eJxdkE1PwzAMhs/9F1XubcM00IjWTQOEmDTQtA8O3NrEa7M1donTjZ9P2UAgrraf1489nn64Jj6CZ0uYi6tUihhQk7FY5WK7eUxGYjoZc+GaVs26UOMK3jvgEEc9iKzOnVx0HhUVbFlh4YBV0Go9e16oQSpV6ymQpkZE84dc7Nqign17KGtnzI5MUzrc1aayaB0cLOiD3ZcAVsTR649Wn9LDzB3MkUOBoS9JeZPI60QONnKkhrdqKN9EtPxedWfxcsE/r/SvV3kZYvW02SyTFRjrQYdzyNEa8C89kYuKqGog1eRENGMGH3qle0LuHPg1+KPVsF0tclGH0LLKstPplP5CWU0cwGQt09erDDhKEUJWaBbZ5BPy1YRc';
     my $saml = Google::SAML::Response->new( { key => 't/rsa.private.key', login => 'someone', request => $request } );

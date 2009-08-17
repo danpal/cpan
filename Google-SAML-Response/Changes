@@ -3,6 +3,12 @@ Revision history for Perl module Google::SAML::Response
     - The synopsis was corrected (the example call to new() didn't provide
       the parameters as a hash-ref).
 
+0.08 Mon Aug 17 2009
+    - Fixed some serious documentation bugs (thanks to Keith Erekson for 
+      reporting them)
+    - Changed the xmlsec test that now not only checks whether xmlsec1 is
+      installed, but also whether it is also working.
+
 0.07 Fri Dec 19 2008
     - Repair the broken package 0.06 which wouldn't pass the tests
 
