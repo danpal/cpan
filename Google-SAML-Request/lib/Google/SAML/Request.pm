@@ -1,10 +1,10 @@
-#  Copyright (c) 2008 Manni Heumann. All rights reserved.
+#  Copyright (c) 2008-2009 Manni Heumann. All rights reserved.
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the same terms as Perl itself.
 #
-#   Date: $Date$
-#   Revision: $Revision$
+#   Date: 2009-11-06
+#   Revision: 43
 #
 
 package Google::SAML::Request;
@@ -15,7 +15,7 @@ Google::SAML::Request - Create or parse Google's SAML requests
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.03
+You are currently reading the documentation for version 0.04
 
 =head1 DESCRIPTION
 
@@ -105,7 +105,7 @@ use XML::Simple;
 use URI::Escape;
 
 
-our $VERSION = '0.02';
+our $VERSION = '0.04';
 
 
 =head2 new
@@ -396,8 +396,6 @@ sub _inflate {
 	return;
 }
 
-
-
 =head3 Accessor methods (read-only)
 
 All of the following accessor methods return the value of the
@@ -421,6 +419,12 @@ sub AssertionConsumerServiceURL { return shift->{AssertionConsumerServiceURL}; }
 sub ID { return shift->{ID}; }
 sub IssueInstant { return shift->{IssueInstant}; }
 sub ProviderName { return shift->{ProviderName}; }
+
+=head1 SOURCE CODE
+
+This module is a part of a github repository:
+
+  http://github.com/mannih/cpan
 
 =head1 AUTHOR
 
