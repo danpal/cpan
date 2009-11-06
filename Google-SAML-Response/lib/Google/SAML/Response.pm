@@ -3,8 +3,7 @@
 #  This program is free software; you can redistribute it and/or
 #  modify it under the same terms as Perl itself.
 #
-#   Date: $Date$
-#   Revision: $Revision$
+#   Date: 2009-11-06
 #
 
 package Google::SAML::Response;
@@ -16,7 +15,7 @@ Google's SSO implementation
 
 =head1 VERSION
 
-You are currently reading the documentation for version 0.08
+You are currently reading the documentation for version 0.09
 
 =head1 DESCRIPTION
 
@@ -112,7 +111,7 @@ use Google::SAML::Request;
 use Carp;
 
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head2 new
 
@@ -558,13 +557,19 @@ compile.
 
 =back
 
+=head1 SOURCE CODE
+
+This module is part of a github repository:
+
+  http://github.com/mannih/cpan
+
 =head1 AUTHOR
 
 Manni Heumann (saml at lxxi dot org)
 
 =head1 LICENSE
 
-Copyright (c) 2008 Manni Heumann. All rights reserved.
+Copyright (c) 2008-2009 Manni Heumann. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
