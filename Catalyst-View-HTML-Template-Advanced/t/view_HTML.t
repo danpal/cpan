@@ -5,10 +5,10 @@ use lib './t';
 use Fake::Context;
 
 BEGIN { 
-    use_ok 'Yaatt::View::HTML' 
+    use_ok 'Catalyst::View::HTML::Template::Advanced'
 }
 
-Yaatt::View::HTML->config( 
+Catalyst::View::HTML::Template::Advanced->config( 
     extra_tmpl_path  =>  './t/test_tmpl',
 );
 
@@ -28,8 +28,8 @@ test_create_template();
 
 
 sub test_create_template {
-    my $v = Yaatt::View::HTML->new();
-    isa_ok( $v, 'Yaatt::View::HTML' );
+    my $v = Catalyst::View::HTML::Template::Advanced->new();
+    isa_ok( $v, 'Catalyst::View::HTML::Template::Advanced' );
 
     my $c = Fake::Context->new;
     $c->{ stash }->{ array_test } = [ { somevar => 1 }, { somevar => 2 } ];
@@ -47,14 +47,14 @@ sub test_create_template {
 
 
 sub test_process {
-    my $v = Yaatt::View::HTML->new();
-    isa_ok( $v, 'Yaatt::View::HTML' );
+    my $v = Catalyst::View::HTML::Template::Advanced->new();
+    isa_ok( $v, 'Catalyst::View::HTML::Template::Advanced' );
 
     my $c = Fake::Context->new;
     $c->{ stash }->{ array_test } = [ { somevar => 1 }, { somevar => 2 } ];
     ok( $v->process( $c ), 'process returns true' );
     my $b = $c->_get_body;
-warn "[$b]";
+
     my @lines = split /\n/, $b;
 
     foreach my $l ( @lines ) {
