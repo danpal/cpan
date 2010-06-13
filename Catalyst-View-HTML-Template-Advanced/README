@@ -1,0 +1,5 @@
+Catalyst::View::HTML::Template::Advanced
+
+A Catalyst View using HTML::Template. But with a couple of more features
+than Catalyst::View::HTML::Template.
+
