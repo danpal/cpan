@@ -6,6 +6,7 @@ use base 'Catalyst::View';
 use HTML::Template;
 use List::MoreUtils qw/ uniq /;
 
+our $VERSION = '0.01';
 
 =head1 NAME Yaatt::View::HTML
 
@@ -137,6 +138,19 @@ templates can be put. For example:
      extra_tmpl_path: /foo/bar/baz
 
 Any templates found in /foo/bar/baz will then be preferred over those in root/tmpl
+
+=head1 SEE ALSO
+
+L<Catalyst::View::HTML::Template>
+
+=head1 AUTHOR
+
+Manni Heumann, C<manni@cpan.org>
+
+=head1 COPYRIGHT
+
+This program is free software. You can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 
