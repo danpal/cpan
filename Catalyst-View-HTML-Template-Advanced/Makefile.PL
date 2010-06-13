@@ -5,6 +5,8 @@ use Module::Install::Catalyst; # Complain loudly if you don't have
                                # Catalyst::Devel installed or haven't said
                                # 'make dist' to create a standalone tarball.
 
+perl_version '5.008001';
+
 name 'Catalyst-View-HTML-Template-Advanced';
 all_from 'lib/Catalyst/View/HTML/Template/Advanced.pm';
 
