@@ -34,12 +34,12 @@ SKIP: {
     unlink 'tmp.xml';
 
     my $saml2 = Google::SAML::Response->new( { key => 't/dsa.private.key', login => 'someone', request => $request } );
-    $xml = $saml->get_response_xml();
+    $xml = $saml2->get_response_xml();
     ok( $xml, "Got XML for the response" );
     ok( open XML, '>', 'tmp.xml' );
     print XML $xml;
     close XML;
     $verify_response = `xmlsec1 --verify tmp.xml 2>&1`;
     ok( $verify_response =~ m/^OK/, "Response is OK for xmlsec1" );
-    unlink 'tmp.xml';
+#    unlink 'tmp.xml';
 }

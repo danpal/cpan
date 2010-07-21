@@ -335,6 +335,9 @@ sub get_response_xml {
     # We now calculate a signature over the canonical SignedInfo element
 
     $canonical        = $self->_canonicalize_xml( $signed_info );
+    if ( $self->{ key_type } eq 'dsa' ) {
+        # TODO: do something meaningful here. or maybe not.
+    }
     my $bin_signature = $self->{key_obj}->sign( $canonical );
     my $signature     = encode_base64( $bin_signature, "\n" );
 
