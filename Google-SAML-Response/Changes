@@ -1,5 +1,8 @@
 Revision history for Perl module Google::SAML::Response
 
+0.10 
+
+0.09 Fri Nov 06 2009
     - The synopsis was corrected (the example call to new() didn't provide
       the parameters as a hash-ref).
 

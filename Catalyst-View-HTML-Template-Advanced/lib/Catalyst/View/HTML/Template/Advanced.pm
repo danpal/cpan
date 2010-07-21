@@ -6,7 +6,7 @@ use base 'Catalyst::View';
 use HTML::Template;
 use List::MoreUtils qw/ uniq /;
 
-our $VERSION = '0.01';
+our $VERSION = '0.01_01';
 
 =head1 NAME Yaatt::View::HTML
 

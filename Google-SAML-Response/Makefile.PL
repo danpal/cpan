@@ -6,6 +6,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME                => 'Google::SAML::Response',
     AUTHOR              => 'Manni Heumann <saml@lxxi.org>',
+    LICENSE             => 'perl',
     VERSION_FROM        => 'lib/Google/SAML/Response.pm',
     ABSTRACT_FROM       => 'lib/Google/SAML/Response.pm',
     PL_FILES            => {},
@@ -22,6 +23,16 @@ WriteMakefile(
             'Test::More'                => 0,
             'Test::Exception'           => 0,
     },
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Google-SAML-Response-*' },
+    dist                => { 
+            COMPRESS => 'gzip -9f', 
+            SUFFIX => 'gz', 
+        },
+    clean               => { 
+            FILES => 'Google-SAML-Request-*' 
+        },
+    META_MERGE          => {
+            resources => {
+                repository =>  'http://github.com/mannih/cpan/tree/master/Google-SAML-Response/'
+            }
+    },
 );
