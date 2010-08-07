@@ -14,7 +14,7 @@ BEGIN {
 SKIP: {
     skip "xmlsec1 not installed", 6 unless which('xmlsec1');
 
-    # Try whether xmlsec is correctly installed which 
+    # Test whether xmlsec is correctly installed which 
     # doesn't seem to be the case on every cpan testing machine
 
     my $output = `xmlsec1 --version`;
@@ -41,5 +41,6 @@ SKIP: {
     close XML;
     $verify_response = `xmlsec1 --verify tmp.xml 2>&1`;
     ok( $verify_response =~ m/^OK/, "Response is OK for xmlsec1" );
-#    unlink 'tmp.xml';
+
+    unlink 'tmp.xml';
 }

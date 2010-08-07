@@ -1,9 +1,7 @@
-#  Copyright (c) 2009 Manni Heumann. All rights reserved.
+#  Copyright (c) 2010 Manni Heumann. All rights reserved.
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the same terms as Perl itself.
-#
-#   Date: 2009-11-06
 #
 
 package Google::SAML::Response;
@@ -201,7 +199,6 @@ sub new {
 }
 
 
-
 sub _load_dsa_key {
     my $self = shift;
     my $key_text = shift;
@@ -290,7 +287,6 @@ sub _load_key {
 }
 
 
-
 =head2 get_response_xml
 
 Generate the signed response xml and return it as a string
@@ -342,18 +338,22 @@ sub get_response_xml {
     # We now calculate a signature over the canonical SignedInfo element
 
     $canonical        = $self->_canonicalize_xml( $signed_info );
+    my $signature;
+
     if ( $self->{ key_type } eq 'dsa' ) {
-        # TODO: do something meaningful here. or maybe not.
+        my $sig = $self->{ key_obj }->do_sign( sha1( $canonical ) );
+        $signature = encode_base64( $sig->get_r . $sig->get_s );
     }
-    my $bin_signature = $self->{key_obj}->sign( $canonical );
-    my $signature     = encode_base64( $bin_signature, "\n" );
+    else {
+        my $bin_signature = $self->{key_obj}->sign( $canonical );
+        $signature = encode_base64( $bin_signature, "\n" );
+    }
 
     # With the signature value and the signedinfo element, we create
     # a Signature element:
     my $signature_xml = $self->_signature_xml( $signed_info, $signature );
 
     # Now insert the signature xml into our response xml
-    #$xml =~ s{</Assertion>}{</Assertion>$signature_xml};
     $xml =~ s/<samlp:Status>/$signature_xml<samlp:Status>/;
 
     return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" . $xml;
@@ -373,7 +373,6 @@ sub _signature_xml {
 }
 
 
-
 sub _signedinfo_xml {
     my $self = shift;
     my $digest_xml = shift;
@@ -384,7 +383,6 @@ sub _signedinfo_xml {
                 $digest_xml
             </SignedInfo>};
 }
-
 
 
 sub _reference_xml {
@@ -399,7 +397,6 @@ sub _reference_xml {
                         <DigestValue>$digest</DigestValue>
                     </Reference>};
 }
-
 
 
 sub _canonicalize_xml {
@@ -420,8 +417,6 @@ sub _canonicalize_xml {
         confess "Unknown XML canonicalizer module.";
     }
 }
-
-
 
 
 sub _response_xml {

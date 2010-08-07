@@ -1,6 +1,8 @@
 Revision history for Perl module Google::SAML::Response
 
-0.10 
+0.10 Sat Aug 07 2010
+    - Many thanks to Thiago Damasceno who let me know that DSA-Key handling
+      was horribly, horribly broken and then showed me how to do it correctly.
 
 0.09 Fri Nov 06 2009
     - The synopsis was corrected (the example call to new() didn't provide
